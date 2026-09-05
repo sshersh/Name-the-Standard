@@ -1,0 +1,26 @@
+[project]
+name = "namestd"
+version = "0.1.0"
+description = "Identify the jazz standard being played in a live performance"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+audio = ["soundfile>=0.12", "librosa>=0.10"]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+namestd = "namestd.cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["namestd*"]
+
+[tool.pytest.ini_options]
+testpaths = ["namestd/tests"]

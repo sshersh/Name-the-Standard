@@ -34,6 +34,10 @@ class PerformanceStyle:
     n_choruses: int = 3
     swing: float = 0.62           # first of a pair of eighths, as a fraction of the beat
     start_offset_bars: int = 0    # begin mid-form, as when you walk into a club
+    # The head is stated on the first and last chorus, with solos in between -
+    # the shape of nearly every small-group performance.
+    head: tuple[np.ndarray, np.ndarray] | None = None
+    head_level: float = 1.0
     bass_level: float = 1.0
     comp_level: float = 0.8
     drums_level: float = 0.5
@@ -199,6 +203,28 @@ def render(song: Song, style: PerformanceStyle | None = None,
                 _add(buffer, _cymbal(sample_rate, beat_seconds * 0.5, rng), up,
                      style.drums_level * 0.07)
 
+    # --- head -------------------------------------------------------------
+    # Stated on the first and last chorus only; the choruses between are solos,
+    # so a melody matcher pointed anywhere else would find improvisation.
+    head_choruses: list[int] = []
+    if style.head is not None and style.n_choruses >= 1:
+        head_choruses = [0] if style.n_choruses == 1 else [0, style.n_choruses - 1]
+        head_positions, head_pitches = style.head
+        chorus_beats = len(rotated)
+        for chorus in head_choruses:
+            for position, midi in zip(head_positions, head_pitches):
+                # The head follows the form, so shift it by the same rotation.
+                beat = (float(position) - offset) % chorus_beats + chorus * chorus_beats
+                index = int(np.floor(beat))
+                if index >= len(beats):
+                    continue
+                frac = beat - index
+                at = int((times[index] + frac * beat_seconds) * sample_rate)
+                duration = beat_seconds * 0.55
+                note = _pluck(_midi_to_hz(float(midi)), duration, sample_rate,
+                              harmonics=[1.0, 0.6, 0.35, 0.2, 0.1], decay=3.0, rng=rng)
+                _add(buffer, note, at, style.head_level * 0.22)
+
     if style.noise_level > 0:
         buffer += rng.normal(0, style.noise_level, size=total).astype(np.float32)
 
@@ -215,6 +241,7 @@ def render(song: Song, style: PerformanceStyle | None = None,
         "start_offset_bars": style.start_offset_bars,
         "n_choruses": style.n_choruses,
         "beat_times": times[:len(beats)],
+        "head_choruses": head_choruses,
         "chords": beats,
         "sample_rate": sample_rate,
     }

@@ -234,6 +234,7 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);
         <span class="bpm" id="bpmv">160</span>
       </div>
       <button class="act" id="tap">Tap the tempo <span class="k" id="tapk">4 beats</span></button>
+      <button class="act" id="reset">Start over <span class="k">discard</span></button>
     </div>
 
     <div class="readout">
@@ -545,6 +546,36 @@ function resetSession(){
   nBeats=0; acc.fill(0); accN=0; lastMatch=null;
   el("rBeats").textContent="0"; el("rForm").textContent="–";
   el("rChorus").textContent="–";
+  clearResults();
+}
+
+/* A discarded take must take its verdict with it. Leaving the old match on
+   screen while the beat counter restarts at zero reads as a current answer. */
+function clearResults(){
+  el("resultHead").textContent = running ? "Listening" : "Nothing heard yet";
+  el("vName").textContent = "\u2014";
+  el("vBy").textContent = "";
+  el("vChips").innerHTML = "";
+  el("ranked").innerHTML = "";
+  el("grid").innerHTML = "";
+  el("vNote").innerHTML = running
+    ? "Counting choruses. It needs about four before it can say anything \u2014 one is not enough."
+    : "Press <b>Listen to the room</b>, or play a test tune.";
+}
+
+/* Discard what has been heard and keep going from zero. Deliberately does not
+   touch the microphone stream: tearing it down and re-opening it can re-prompt
+   for permission, which is a poor answer to "that take was no good". */
+function restart(){
+  if (running){
+    resetSession();
+    nextBeatAt = performance.now() + beatMs;
+    el("foot").innerHTML = '<span class="pulse"></span>Started over. '
+      + 'Give it four choruses from here.';
+  } else {
+    resetSession();
+    drawScope();
+  }
 }
 
 function tick(){
@@ -790,8 +821,9 @@ el("play").addEventListener("click", function(){
 });
 
 function begin(m){
+  mode=m; running=true;
   resetSession();
-  mode=m; running=true; nextBeatAt=performance.now()+beatMs;
+  nextBeatAt=performance.now()+beatMs;
   rafId=requestAnimationFrame(tick);
   if (timer) clearInterval(timer);
   timer=setInterval(drawScope, 100);
@@ -808,8 +840,12 @@ function stopAll(){
   el("play").innerHTML='Play a test tune <span class="k">synth</span>';
   el("play").classList.remove("recording");
   document.body.classList.remove("recording");
+  if (nBeats > 0 && el("ranked").innerHTML)
+    el("resultHead").textContent = "Last take \u2014 " + nBeats + " beats";
   drawScope();
 }
+
+el("reset").addEventListener("click", restart);
 
 /* theme toggle */
 el("theme").addEventListener("click", function(){

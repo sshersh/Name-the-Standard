@@ -12,3 +12,7 @@ out/
 *.wav
 *.flac
 *.mp3
+
+# Generated for the web demo: embeds the fetched corpus, so it is built, not committed.
+web/corpus.js
+web/name-the-standard.html

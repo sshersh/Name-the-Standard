@@ -50,6 +50,22 @@ of the head: 10/12 top-1.
     python -m namestd.eval synthetic --songs 60
     pytest
 
+## Browser demo
+
+A single self-contained page that runs the harmonic matcher client-side over all
+1382 tunes: play into the microphone, or let it synthesise a test tune and
+identify that. It opens showing a real match so you can see what it does before
+granting mic access.
+
+    python scripts/build_web_app.py       # -> web/name-the-standard.html
+
+`web/app.html` is the source; the built page and its inlined `corpus.js` are
+generated and not committed, since they embed the fetched corpus.
+
+The browser port covers stages 1-3 (chroma, form, harmonic match). It asks for
+the tempo rather than tracking beats - musicians count tunes off anyway - and the
+melody rerank stays in the Python prototype.
+
 ## Layout
 
 | | |

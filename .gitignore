@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Third-party corpus data is fetched at setup time, never committed.
+data/raw/
+data/cache/
+out/
+*.wav
+*.flac
+*.mp3
+
+# Generated for the web demo: embeds the fetched corpus, so it is built, not committed.
+web/corpus.js
+web/name-the-standard.html

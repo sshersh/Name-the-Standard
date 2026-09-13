@@ -1,0 +1,903 @@
+<title>Name the Standard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
+
+<style>
+:root{
+  --ink:#12151c; --ink-2:#191d26; --ink-3:#222733;
+  --paper:#f6f2e9; --paper-2:#efe9dc; --paper-3:#e3dbc9;
+  --brass:#c8873c; --brass-soft:#e0a75e;
+  --sage:#6d8a7b; --rust:#a8452f;
+
+  /* light theme (default) */
+  --bg:var(--paper); --surface:#fffdf8; --surface-2:var(--paper-2);
+  --line:#d9d0bd; --line-soft:#e7e0d1;
+  --text:#1b1f27; --text-2:#5b6270; --text-3:#8b9099;
+  --accent:#9a6520; --accent-bg:rgba(200,135,60,.13);
+  --good:#4a6b5b; --live:#a8452f;
+  --shadow:0 1px 2px rgba(30,25,15,.06), 0 8px 24px -12px rgba(30,25,15,.18);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:var(--ink); --surface:var(--ink-2); --surface-2:var(--ink-3);
+    --line:#2e3442; --line-soft:#242936;
+    --text:#eae6dc; --text-2:#a2a8b5; --text-3:#6f7684;
+    --accent:var(--brass-soft); --accent-bg:rgba(224,167,94,.12);
+    --good:#7fa892; --live:#d4674c;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 32px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:var(--ink); --surface:var(--ink-2); --surface-2:var(--ink-3);
+  --line:#2e3442; --line-soft:#242936;
+  --text:#eae6dc; --text-2:#a2a8b5; --text-3:#6f7684;
+  --accent:var(--brass-soft); --accent-bg:rgba(224,167,94,.12);
+  --good:#7fa892; --live:#d4674c;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 32px -16px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 64px}
+
+/* ---------- header ---------- */
+header{
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+  gap:16px;padding-bottom:18px;border-bottom:1px solid var(--line);
+}
+h1{
+  font-family:"Bodoni Moda",Didot,"Times New Roman",serif;
+  font-weight:700;font-size:clamp(30px,5vw,46px);line-height:1.02;
+  margin:0;letter-spacing:-.012em;text-wrap:balance;
+}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{color:var(--text-2);max-width:56ch;margin:8px 0 0;font-size:14.5px}
+.theme-btn{
+  border:1px solid var(--line);background:var(--surface);color:var(--text-2);
+  border-radius:999px;padding:7px 14px;font:inherit;font-size:12.5px;cursor:pointer;
+}
+.theme-btn:hover{color:var(--text);border-color:var(--accent)}
+.theme-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- layout ---------- */
+.console{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:20px;margin-top:22px}
+@media (max-width:860px){.console{grid-template-columns:minmax(0,1fr)}}
+
+.panel{
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:18px;box-shadow:var(--shadow);
+}
+.panel h2{
+  font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--text-3);margin:0 0 14px;
+}
+
+/* ---------- transport ---------- */
+.controls{display:flex;flex-direction:column;gap:10px}
+button.act{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;padding:12px 14px;border-radius:8px;cursor:pointer;
+  font:inherit;font-weight:600;font-size:14px;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--text);
+  transition:border-color .15s,background .15s;
+}
+button.act:hover{border-color:var(--accent)}
+button.act:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.act[disabled]{opacity:.45;cursor:not-allowed}
+button.act.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] button.act.primary,
+:root:not([data-theme="light"]) button.act.primary{color:#17120a}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) button.act.primary{color:#fff}}
+button.act.recording{background:var(--live);border-color:var(--live);color:#fff}
+.act .k{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;opacity:.75;font-weight:400}
+
+.tempo{display:flex;align-items:center;gap:10px;margin-top:4px}
+.tempo label{font-size:12px;color:var(--text-2);letter-spacing:.04em}
+.tempo input[type=range]{flex:1;accent-color:var(--accent);min-width:0}
+.bpm{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:700;font-size:15px;
+  font-variant-numeric:tabular-nums;color:var(--accent);min-width:56px;text-align:right;
+}
+select{
+  width:100%;padding:9px 10px;border-radius:7px;border:1px solid var(--line);
+  background:var(--surface-2);color:var(--text);font:inherit;font-size:13.5px;
+}
+select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.readout{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:16px;
+  background:var(--line-soft);border:1px solid var(--line-soft);border-radius:8px;overflow:hidden;
+}
+.readout div{background:var(--surface);padding:9px 10px}
+.readout .lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+.readout .val{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:16px;font-weight:700;
+  font-variant-numeric:tabular-nums;margin-top:2px;
+}
+
+/* ---------- scope ---------- */
+.scope-wrap{position:relative}
+canvas{display:block;width:100%;height:150px;border-radius:7px;background:var(--surface-2)}
+.pcs{
+  display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-top:6px;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9.5px;color:var(--text-3);text-align:center;
+}
+
+/* ---------- verdict ---------- */
+.verdict{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px}
+.verdict .name{
+  font-family:"Bodoni Moda",Didot,serif;font-weight:700;font-size:clamp(22px,3.4vw,32px);
+  line-height:1.1;margin:0;
+}
+.verdict .by{color:var(--text-2);font-size:13.5px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;
+  padding:4px 9px;border-radius:999px;border:1px solid var(--line);color:var(--text-2);
+  background:var(--surface-2);white-space:nowrap;
+}
+.chip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.note{
+  margin-top:12px;padding:10px 12px;border-left:2px solid var(--accent);
+  background:var(--accent-bg);border-radius:0 6px 6px 0;font-size:13px;color:var(--text-2);
+}
+.note b{color:var(--text);font-weight:600}
+
+/* ---------- ranked list ---------- */
+.ranked{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:1px}
+.ranked li{
+  display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:6px;background:var(--surface);
+}
+.ranked li:nth-child(odd){background:var(--surface-2)}
+.ranked .n{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;color:var(--text-3);
+  font-variant-numeric:tabular-nums;
+}
+.ranked .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
+.ranked .t small{color:var(--text-3);font-size:11px;margin-left:7px}
+.ranked .s{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--text-2);
+  font-variant-numeric:tabular-nums;
+}
+.bar{height:3px;border-radius:2px;background:var(--accent);opacity:.5;margin-top:3px}
+
+/* ---------- lead sheet ---------- */
+.sheet{margin-top:20px}
+.grid-scroll{overflow-x:auto}
+.grid{
+  display:grid;grid-template-columns:repeat(4,minmax(84px,1fr));
+  border-left:2px solid var(--text-3);border-top:1px solid var(--line);min-width:380px;
+}
+.bar-cell{
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:11px 10px;min-height:52px;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;font-weight:700;
+}
+.bar-cell:nth-child(4n){border-right:2px solid var(--text-3)}
+.bar-cell .two{display:flex;gap:8px;flex-wrap:wrap}
+.bar-cell .two span:last-child{color:var(--text-2);font-weight:400}
+.bar-cell .idx{
+  display:block;font-size:9px;font-weight:400;color:var(--text-3);
+  letter-spacing:.08em;margin-bottom:3px;
+}
+.bar-cell.head{background:var(--accent-bg)}
+
+/* ---------- explainer ---------- */
+.how{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}
+.how h2{font-family:"Bodoni Moda",Didot,serif;font-size:22px;font-weight:700;margin:0 0 4px}
+.steps{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:18px;margin-top:18px;
+}
+.step h3{font-size:13.5px;margin:0 0 5px;font-weight:600}
+.step p{margin:0;font-size:13px;color:var(--text-2)}
+.step .stage{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;color:var(--accent);
+  letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px;
+}
+footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);
+  color:var(--text-3);font-size:12.5px}
+.pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--live);margin-right:6px}
+@media (prefers-reduced-motion:no-preference){
+  .recording .pulse{animation:blink 1.1s ease-in-out infinite}
+}
+@keyframes blink{50%{opacity:.25}}
+</style>
+
+<div class="wrap">
+<header>
+  <div>
+    <h1>Name the <em>Standard</em></h1>
+    <p class="sub">Shazam matches one recording. This matches the <strong>changes</strong> &mdash;
+      so it works on a band you have never heard, in any key, at any tempo, from anywhere in the form.</p>
+  </div>
+  <button class="theme-btn" id="theme">Theme</button>
+</header>
+
+<div class="console">
+  <div class="panel">
+    <h2>Bandstand</h2>
+    <div class="controls">
+      <button class="act primary" id="mic">Listen to the room <span class="k">mic</span></button>
+      <button class="act" id="play">Play a test tune <span class="k">synth</span></button>
+      <select id="tune" aria-label="Test tune"></select>
+      <div class="tempo">
+        <label for="bpm">Tempo</label>
+        <input type="range" id="bpm" min="80" max="300" step="1" value="160">
+        <span class="bpm" id="bpmv">160</span>
+      </div>
+      <button class="act" id="tap">Tap the tempo <span class="k" id="tapk">4 beats</span></button>
+      <button class="act" id="reset">Start over <span class="k">discard</span></button>
+    </div>
+
+    <div class="readout">
+      <div><div class="lbl">Beats</div><div class="val" id="rBeats">0</div></div>
+      <div><div class="lbl">Form</div><div class="val" id="rForm">&ndash;</div></div>
+      <div><div class="lbl">Chorus</div><div class="val" id="rChorus">&ndash;</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>What it hears</h2>
+    <div class="scope-wrap">
+      <canvas id="scope" width="900" height="300"></canvas>
+      <div class="pcs" id="pcs"></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:20px">
+  <h2 id="resultHead">Sample result</h2>
+  <div class="verdict">
+    <p class="name" id="vName">Autumn Leaves</p>
+    <span class="by" id="vBy">Joseph Kosma</span>
+  </div>
+  <div class="chips" id="vChips"></div>
+  <div class="note" id="vNote"></div>
+  <ol class="ranked" id="ranked"></ol>
+</div>
+
+<div class="panel sheet">
+  <h2>The changes it matched</h2>
+  <div class="grid-scroll"><div class="grid" id="grid"></div></div>
+</div>
+
+<div class="how">
+  <h2>Why the solos help</h2>
+  <p class="sub">The changes repeat every chorus for the whole tune, so a solo is not noise to
+    discard &mdash; it is another pass over the same harmony. Confidence climbs the longer it listens,
+    which is the opposite of a fingerprinter's fixed window.</p>
+  <div class="steps">
+    <div class="step">
+      <span class="stage">Stage 1</span>
+      <h3>Chroma, pooled by beat</h3>
+      <p>Bass and treble kept apart: pianists voice rootless, so the root is the bass player's.
+         Pooling per beat makes tempo irrelevant.</p>
+    </div>
+    <div class="step">
+      <span class="stage">Stage 2</span>
+      <h3>Find the chorus length</h3>
+      <p>Self-similarity gives the form &mdash; 12 bars, 32, 48 &mdash; before any database is touched,
+         and rules out tunes it cannot be.</p>
+    </div>
+    <div class="step">
+      <span class="stage">Stage 3</span>
+      <h3>Tune &times; key &times; position</h3>
+      <p>One circular correlation searches all three at once. Folding the query by the form length
+         is what accumulates every chorus of evidence.</p>
+    </div>
+    <div class="step">
+      <span class="stage">Stage 4</span>
+      <h3>Then the head decides</h3>
+      <p>Twenty-eight tunes share the same twelve bars. Harmony can honestly say
+         &ldquo;a blues in F&rdquo;; only the melody says which blues.</p>
+    </div>
+  </div>
+</div>
+
+<footer id="foot">1382 tunes indexed. Harmonic matching runs in this page; the melody stage runs in the Python prototype.</footer>
+</div>
+
+<script src="CORPUS_PLACEHOLDER"></script>
+<script>
+(function(){
+"use strict";
+
+/* ============================ corpus ============================ */
+var C = window.CORPUS, ALPHA = C.alphabet;
+var CODE = {}; for (var i=0;i<ALPHA.length;i++) CODE[ALPHA[i]] = i;
+var PC = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
+var QNAME = ["maj","m","7","m7b5","dim","sus"];
+var NQ = 6;
+
+var SONGS = C.songs.map(function(s){
+  var codes = new Uint8Array(s.k.length);
+  for (var j=0;j<s.k.length;j++) codes[j] = CODE[s.k[j]];
+  return {title:s.t, composer:s.c, bpb:s.b, fam:s.f, codes:codes, L:s.k.length};
+});
+var FAMS = C.families;
+
+/* Songs bucketed by chorus length: correlation needs equal lengths. */
+var BUCKETS = {};
+SONGS.forEach(function(s,i){ (BUCKETS[s.L] = BUCKETS[s.L] || []).push(i); });
+var LENGTHS = Object.keys(BUCKETS).map(Number).sort(function(a,b){return a-b;});
+
+/* ============================ templates ============================ */
+/* 72 chord codes x 24 dims (bass 12 + treble 12), matching the Python
+   templates: the third and seventh discriminate, the fifth barely does. */
+var TREBLE = [
+  {0:.7,4:1,7:.4,11:.9,9:.5,2:.3},   /* maj  */
+  {0:.7,3:1,7:.4,10:.8,2:.3,5:.2},   /* min  */
+  {0:.7,4:1,7:.3,10:.9,2:.3,9:.2},   /* dom  */
+  {0:.7,3:1,6:.8,10:.8,1:.2},        /* hdim */
+  {0:.8,3:.9,6:.9,9:.9},             /* dim  */
+  {0:.8,5:1,7:.5,10:.8,2:.4}         /* sus  */
+];
+var THIRD = [4,3,4,3,3,5];
+
+var TPL = new Float32Array(72*24);
+(function(){
+  for (var q=0;q<NQ;q++) for (var r=0;r<12;r++){
+    var base = (r*NQ+q)*24, b = new Float32Array(12), t = new Float32Array(12);
+    b[r] += 1; b[(r+7)%12] += .35; b[(r+THIRD[q])%12] += .25;
+    for (var k in TREBLE[q]) t[(r+ +k)%12] += TREBLE[q][k];
+    norm(b); norm(t);
+    for (var d=0;d<12;d++){ TPL[base+d]=b[d]; TPL[base+12+d]=t[d]; }
+  }
+  function norm(v){ var s=0,i; for(i=0;i<12;i++) s+=v[i]*v[i];
+    s=Math.sqrt(s)||1; for(i=0;i<12;i++) v[i]/=s; }
+})();
+
+/* Templates pre-rotated by each transposition, so the query stays untouched. */
+/* Correlating a query rolled by t against TPL equals correlating the raw query
+   against TPL with its pitch axis read at (d+t) - so only the pitch dimension
+   rotates here. Rotating the chord index as well would cancel it out exactly
+   and make all twelve transpositions identical. */
+var TPL_T = [];
+for (var t=0;t<12;t++){
+  var arr = new Float32Array(72*24);
+  for (var c=0;c<72;c++){
+    var o=c*24;
+    for (var d=0;d<12;d++){
+      arr[o+d]    = TPL[o+((d+t)%12)];
+      arr[o+12+d] = TPL[o+12+((d+t)%12)];
+    }
+  }
+  TPL_T.push(arr);
+}
+
+/* ============================ matcher ============================ */
+function detectPeriods(chroma, nBeats){
+  var minP=24, maxP=Math.min(384, nBeats>>1);
+  if (maxP < minP) return [];
+  var strength = new Float32Array(maxP-minP+1);
+  for (var p=minP;p<=maxP;p++){
+    var acc=0, n=nBeats-p;
+    for (var i=0;i<n;i++){
+      var a=i*24, b=(i+p)*24, dot=0;
+      for (var d=0;d<24;d++) dot += chroma[a+d]*chroma[b+d];
+      acc += dot;
+    }
+    strength[p-minP] = n>0 ? acc/n : 0;
+  }
+  /* Edge-replicated baseline. Zero padding invents peaks at both ends of the
+     range, which is exactly where a wrong answer does the most damage. */
+  var N=strength.length, w=Math.max(9,((N/8)|0)|1), h=w>>1;
+  var excess=new Float32Array(N), mean=0;
+  for (var i2=0;i2<N;i2++){
+    var s=0;
+    for (var k=-h;k<=h;k++){ var j=Math.min(N-1,Math.max(0,i2+k)); s+=strength[j]; }
+    excess[i2]=strength[i2]-s/w; mean+=excess[i2];
+  }
+  mean/=N; var sd=0;
+  for (var i3=0;i3<N;i3++) sd+=(excess[i3]-mean)*(excess[i3]-mean);
+  sd=Math.sqrt(sd/N)||1;
+  var order=[]; for (var i4=0;i4<N;i4++) order.push(i4);
+  order.sort(function(a,b){return excess[b]-excess[a];});
+  var out=[];
+  for (var oi=0; oi<order.length && out.length<3; oi++){
+    var per=order[oi]+minP, clash=false;
+    for (var m=0;m<out.length;m++) if (Math.abs(per-out[m][0])<6) clash=true;
+    if (!clash) out.push([per, excess[order[oi]]/sd]);
+  }
+  return out;
+}
+
+function allowedLengths(periods){
+  if (!periods.length) return LENGTHS;
+  var keep=[];
+  LENGTHS.forEach(function(L){
+    for (var i=0;i<periods.length;i++){
+      var p=periods[i][0], mult=Math.round(L/p);
+      if (mult>=1 && Math.abs(L-mult*p)<=2){ keep.push(L); return; }
+    }
+  });
+  return keep.length?keep:LENGTHS;
+}
+
+/* score(t,r) = sum_j Q[j] . template(code[(j+r) mod L])
+   Precomputing dot(Q[j], template[code]) for all 72 codes turns the whole
+   correlation into table lookups - which is what makes this run in a browser. */
+function match(chroma, nBeats, topK){
+  if (nBeats < 24) return null;
+  var periods = detectPeriods(chroma, nBeats);
+  var lengths = allowedLengths(periods);
+  var results = [];
+
+  lengths.forEach(function(L){
+    var bucket = BUCKETS[L]; if (!bucket) return;
+
+    var fold = new Float32Array(L*24);
+    for (var i=0;i<nBeats;i++){
+      var dst=(i%L)*24, src=i*24;
+      for (var d=0;d<24;d++) fold[dst+d]+=chroma[src+d];
+    }
+
+    var gum = Math.sqrt(2*Math.log(Math.max(12*L,2)));
+
+    for (var tt=0; tt<12; tt++){
+      var tpl = TPL_T[tt];
+      /* QT[j*72 + code] */
+      var QT = new Float32Array(L*72);
+      for (var j=0;j<L;j++){
+        var qo=j*24;
+        for (var c=0;c<72;c++){
+          var co=c*24, s=0;
+          for (var d=0;d<24;d++) s += fold[qo+d]*tpl[co+d];
+          QT[j*72+c]=s;
+        }
+      }
+      for (var bi=0; bi<bucket.length; bi++){
+        var si=bucket[bi], codes=SONGS[si].codes;
+        var best=-1e30, bestR=0, sum=0;
+        for (var r=0;r<L;r++){
+          var acc=0;
+          for (var j2=0;j2<L;j2++) acc += QT[j2*72 + codes[(j2+r)%L]];
+          sum+=acc;
+          if (acc>best){best=acc;bestR=r;}
+        }
+        var score=(best-sum/L)/gum/nBeats;
+        var cur=results[si];
+        if (!cur || score>cur.score)
+          results[si]={i:si,score:score,rot:bestR,tr:(12-tt)%12};
+      }
+    }
+  });
+
+  var list=[];
+  for (var key in results) list.push(results[key]);
+  list.sort(function(a,b){return b.score-a.score;});
+  return {list:list.slice(0,topK||24), periods:periods};
+}
+
+/* ============================ audio front end ============================ */
+var AC=null, analyser=null, micStream=null, synth=null;
+var FFT=16384, binFreq=0, BANDS=null;
+
+function ensureAudio(){
+  if (AC) return AC;
+  AC = new (window.AudioContext||window.webkitAudioContext)();
+  analyser = AC.createAnalyser();
+  analyser.fftSize = FFT;
+  analyser.smoothingTimeConstant = 0.0;
+  binFreq = AC.sampleRate/FFT;
+  BANDS = buildBands();
+  return AC;
+}
+
+/* For each pitch class, the FFT bins within ~35 cents of it, split by register. */
+function buildBands(){
+  var bass=[], treble=[];
+  for (var p=0;p<12;p++){ bass.push([]); treble.push([]); }
+  var n = analyser.frequencyBinCount;
+  for (var b=1;b<n;b++){
+    var f=b*binFreq; if (f<38||f>1400) continue;
+    var midi = 69 + 12*Math.log2(f/440);
+    var near = Math.round(midi);
+    if (Math.abs(midi-near) > 0.35) continue;
+    var pc=((near%12)+12)%12;
+    (f<165 ? bass : treble)[pc].push(b);
+  }
+  return {bass:bass, treble:treble};
+}
+
+var spec=null;
+function frameChroma(out){
+  if (!spec || spec.length!==analyser.frequencyBinCount)
+    spec = new Float32Array(analyser.frequencyBinCount);
+  analyser.getFloatFrequencyData(spec);
+  var p,k,arr,s;
+  for (p=0;p<12;p++){
+    arr=BANDS.bass[p]; s=0;
+    for (k=0;k<arr.length;k++) s += db2lin(spec[arr[k]]);
+    out[p]=s;
+    arr=BANDS.treble[p]; s=0;
+    for (k=0;k<arr.length;k++) s += db2lin(spec[arr[k]]);
+    out[12+p]=s;
+  }
+}
+function db2lin(d){ return d<-95 ? 0 : Math.pow(10, d/20); }
+
+function normHalves(v,o){
+  for (var half=0; half<2; half++){
+    var s=0,d;
+    for (d=0;d<12;d++){ var x=v[o+half*12+d]; s+=x*x; }
+    s=Math.sqrt(s); if (s<1e-9) s=1;
+    for (d=0;d<12;d++) v[o+half*12+d]/=s;
+  }
+}
+
+/* ============================ session state ============================ */
+var MAXB=2048;
+var beats = new Float32Array(MAXB*24);
+var nBeats = 0;
+var acc = new Float32Array(24), accN = 0, frame = new Float32Array(24);
+var running=false, mode=null, nextBeatAt=0, beatMs=375, timer=null, rafId=null;
+var lastMatch=null, matchAt=0;
+
+function resetSession(){
+  nBeats=0; acc.fill(0); accN=0; lastMatch=null;
+  el("rBeats").textContent="0"; el("rForm").textContent="–";
+  el("rChorus").textContent="–";
+  clearResults();
+}
+
+/* A discarded take must take its verdict with it. Leaving the old match on
+   screen while the beat counter restarts at zero reads as a current answer. */
+function clearResults(){
+  el("resultHead").textContent = running ? "Listening" : "Nothing heard yet";
+  el("vName").textContent = "\u2014";
+  el("vBy").textContent = "";
+  el("vChips").innerHTML = "";
+  el("ranked").innerHTML = "";
+  el("grid").innerHTML = "";
+  el("vNote").innerHTML = running
+    ? "Counting choruses. It needs about four before it can say anything \u2014 one is not enough."
+    : "Press <b>Listen to the room</b>, or play a test tune.";
+}
+
+/* Discard what has been heard and keep going from zero. Deliberately does not
+   touch the microphone stream: tearing it down and re-opening it can re-prompt
+   for permission, which is a poor answer to "that take was no good". */
+function restart(){
+  if (running){
+    resetSession();
+    nextBeatAt = performance.now() + beatMs;
+    el("foot").innerHTML = '<span class="pulse"></span>Started over. '
+      + 'Give it four choruses from here.';
+  } else {
+    resetSession();
+    drawScope();
+  }
+}
+
+function tick(){
+  if (!running) return;
+  frameChroma(frame);
+  for (var d=0;d<24;d++) acc[d]+=frame[d];
+  accN++;
+
+  var now = performance.now();
+  if (now >= nextBeatAt){
+    nextBeatAt += beatMs;
+    if (accN>0 && nBeats<MAXB){
+      var o=nBeats*24;
+      for (var d2=0;d2<24;d2++) beats[o+d2]=acc[d2]/accN;
+      normHalves(beats,o);
+      nBeats++;
+      el("rBeats").textContent=String(nBeats);
+    }
+    acc.fill(0); accN=0;
+
+    /* Re-match every 8 beats once there is enough to say anything. */
+    if (nBeats>=32 && nBeats%8===0 && now-matchAt>600){
+      matchAt=now;
+      var res = match(smoothed(), nBeats, 12);
+      if (res && res.list.length){ lastMatch=res; render(res, false); }
+    }
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+/* 3-beat moving average: harmony moves about every half bar, a walking bass
+   moves every beat, so a short average keeps the chord and drops the passing
+   tones. */
+function smoothed(){
+  var w=3, out=new Float32Array(nBeats*24), h=w>>1;
+  for (var i=0;i<nBeats;i++){
+    for (var d=0;d<24;d++){
+      var s=0,c=0;
+      for (var k=-h;k<=h;k++){ var j=i+k; if(j<0||j>=nBeats) continue; s+=beats[j*24+d]; c++; }
+      out[i*24+d]=s/(c||1);
+    }
+    normHalves(out,i*24);
+  }
+  return out;
+}
+
+/* ============================ synth ============================ */
+function startSynth(song, bpm){
+  var ac=ensureAudio();
+  var out=ac.createGain(); out.gain.value=.9;
+  out.connect(analyser); out.connect(ac.destination);
+  var spb=60/bpm, t0=ac.currentTime+.15, L=song.L;
+  var total=Math.min(L*6, 1400);
+  for (var i=0;i<total;i++){
+    var code=song.codes[i%L], root=(code/NQ)|0, q=code%NQ;
+    var at=t0+i*spb;
+    /* walking bass: root on the change, chord tones otherwise */
+    var prev=song.codes[(i-1+L)%L];
+    var bp = (code!==prev) ? root : (root + [0,7,THIRD[q],10][i%4])%12;
+    tone(ac,out, 41.2*Math.pow(2,((bp+3)%12)/12), at, spb*.9, .30, 'triangle');
+    if (i%2===0){
+      var v=[THIRD[q],7,q===0?11:10];
+      for (var k=0;k<v.length;k++)
+        tone(ac,out, 220*Math.pow(2,(((root+v[k])%12)+3)/12), at, spb*1.4, .10, 'sawtooth');
+    }
+  }
+  synth={ctx:ac,node:out,until:t0+total*spb};
+  return spb*1000;
+}
+function tone(ac,dest,freq,at,dur,gain,type){
+  var o=ac.createOscillator(), g=ac.createGain();
+  o.type=type||'sine'; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,at);
+  g.gain.linearRampToValueAtTime(gain,at+.012);
+  g.gain.exponentialRampToValueAtTime(.0001,at+dur);
+  o.connect(g); g.connect(dest); o.start(at); o.stop(at+dur+.02);
+}
+function stopSynth(){ if(synth){ try{synth.node.disconnect();}catch(e){} synth=null; } }
+
+/* ============================ rendering ============================ */
+function el(id){ return document.getElementById(id); }
+
+function render(res, isSample){
+  var top=res.list[0], song=SONGS[top.i], fam=FAMS[song.fam];
+  el("resultHead").textContent = isSample ? "Sample result" : "Live";
+  el("vName").textContent = song.title;
+  el("vBy").textContent = song.composer || "";
+
+  var chips=[
+    ["+"+top.tr+" semitones", true],
+    [song.L/song.bpb + " bars", false],
+    ["heard from bar "+(1+Math.floor(top.rot/song.bpb)), false],
+    [res.periods.length ? "form "+(res.periods[0][0]/song.bpb)+" bars" : "form –", false]
+  ];
+  el("vChips").innerHTML = chips.map(function(c){
+    return '<span class="chip'+(c[1]?' on':'')+'">'+esc(c[0])+'</span>';
+  }).join("");
+
+  var note;
+  if (fam.s>1){
+    var members = res.list.filter(function(m){return SONGS[m.i].fam===song.fam;})
+                          .slice(0,4).map(function(m){return SONGS[m.i].title;});
+    note = 'These changes are shared by <b>'+fam.s+' tunes</b> ('+esc(fam.n)+
+           '). Harmony cannot separate them &mdash; ' + esc(members.join(", ")) +
+           ' are the same bar for bar. Only the head decides.';
+  } else {
+    var gap = res.list.length>1 ? (top.score-res.list[1].score) : 0;
+    note = 'No other tune in the corpus is written on these changes. Margin over the '+
+           'next candidate: <b>'+gap.toFixed(4)+'</b>.';
+  }
+  el("vNote").innerHTML = note;
+
+  var max=top.score||1;
+  el("ranked").innerHTML = res.list.slice(0,10).map(function(m,i){
+    var s=SONGS[m.i], f=FAMS[s.fam];
+    return '<li><span class="n">'+(i+1)+'</span><span class="t">'+esc(s.title)+
+      (f.s>1?'<small>'+esc(f.n)+'</small>':'')+
+      '<div class="bar" style="width:'+Math.max(2,100*m.score/max).toFixed(0)+'%"></div></span>'+
+      '<span class="s">'+m.score.toFixed(4)+'</span></li>';
+  }).join("");
+
+  drawSheet(song, top.rot);
+  if (res.periods.length){
+    el("rForm").textContent = (res.periods[0][0]/song.bpb)+" bars";
+    el("rChorus").textContent = (nBeats? (nBeats/res.periods[0][0]).toFixed(1) : "–");
+  }
+}
+
+function chordName(code){
+  var r=(code/NQ)|0, q=code%NQ;
+  return PC[r]+(q===0?"":QNAME[q]);
+}
+
+function drawSheet(song, rot){
+  var bpb=song.bpb, bars=song.L/bpb, html="";
+  for (var b=0;b<bars;b++){
+    var seen=[], last=-1;
+    for (var k=0;k<bpb;k++){
+      var c=song.codes[b*bpb+k];
+      if (c!==last){ seen.push(c); last=c; }
+    }
+    var isHead = (b*bpb === rot);
+    html += '<div class="bar-cell'+(isHead?' head':'')+'">'+
+            '<span class="idx">'+(b+1)+(isHead?' • heard here':'')+'</span>'+
+            '<div class="two">'+seen.slice(0,3).map(function(c){
+              return '<span>'+esc(chordName(c))+'</span>';}).join("")+'</div></div>';
+  }
+  el("grid").innerHTML = html;
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function drawScope(){
+  var cv=el("scope"), g=cv.getContext("2d");
+  var W=cv.width, H=cv.height;
+  var cs=getComputedStyle(document.body);
+  var ink=cs.getPropertyValue("--text-3").trim();
+  var acc1=cs.getPropertyValue("--accent").trim();
+  var surf=cs.getPropertyValue("--surface-2").trim();
+  g.fillStyle=surf; g.fillRect(0,0,W,H);
+  var shown=Math.min(nBeats, 96);
+  if (!shown){
+    g.fillStyle=ink; g.font='500 15px Archivo, sans-serif'; g.textAlign="center";
+    g.fillText("Press Listen, or play a test tune", W/2, H/2);
+    return;
+  }
+  var start=nBeats-shown, cw=W/shown, rh=H/24;
+  for (var i=0;i<shown;i++){
+    for (var d=0;d<24;d++){
+      var v=beats[(start+i)*24+d];
+      if (v<=0.02) continue;
+      g.globalAlpha=Math.min(1, v*2.1);
+      g.fillStyle = d<12 ? acc1 : ink;
+      g.fillRect(i*cw, (23-d)*rh, Math.max(1,cw-0.5), rh-0.5);
+    }
+  }
+  g.globalAlpha=1;
+}
+
+/* ============================ controls ============================ */
+var bpm=160;
+el("bpm").addEventListener("input", function(){
+  bpm=+this.value; el("bpmv").textContent=bpm; beatMs=60000/bpm;
+});
+beatMs=60000/bpm;
+
+var taps=[];
+el("tap").addEventListener("click", function(){
+  var now=performance.now();
+  if (taps.length && now-taps[taps.length-1]>2200) taps=[];
+  taps.push(now);
+  if (taps.length>=2){
+    var span=(taps[taps.length-1]-taps[0])/(taps.length-1);
+    var b=Math.round(60000/span);
+    while (b<80) b*=2; while (b>300) b/=2;
+    bpm=Math.round(b); el("bpm").value=bpm; el("bpmv").textContent=bpm;
+    beatMs=60000/bpm; nextBeatAt=now+beatMs;
+  }
+  el("tapk").textContent = taps.length<2 ? "keep tapping" : taps.length+" taps";
+  if (taps.length>8) taps=taps.slice(-8);
+});
+
+el("mic").addEventListener("click", function(){
+  if (running && mode==="mic"){ stopAll(); return; }
+  stopAll();
+  ensureAudio();
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    el("vNote").textContent="This browser will not give the page a microphone.";
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,
+      noiseSuppression:false, autoGainControl:false}})
+  .then(function(stream){
+    micStream=stream;
+    AC.createMediaStreamSource(stream).connect(analyser);
+    if (AC.state==="suspended") AC.resume();
+    begin("mic");
+    el("mic").textContent="Stop listening";
+    el("mic").classList.add("recording");
+    el("foot").innerHTML='<span class="pulse"></span>Listening. Set the tempo to match what is '+
+      'playing &mdash; tap it in if you are not sure. Give it four choruses.';
+    document.body.classList.add("recording");
+  })
+  .catch(function(){
+    el("vNote").textContent="Microphone permission was declined, so there is nothing to listen to. "+
+      "Try the test tune instead.";
+  });
+});
+
+el("play").addEventListener("click", function(){
+  if (running && mode==="synth"){ stopAll(); return; }
+  stopAll(); ensureAudio();
+  if (AC.state==="suspended") AC.resume();
+  var song=SONGS[+el("tune").value];
+  startSynth(song, bpm);
+  begin("synth");
+  el("play").textContent="Stop";
+  el("play").classList.add("recording");
+  el("foot").innerHTML='<span class="pulse"></span>Playing '+esc(song.title)+
+    ' at '+bpm+' bpm through the same front end the microphone uses. It does not know which tune this is.';
+  document.body.classList.add("recording");
+});
+
+function begin(m){
+  mode=m; running=true;
+  resetSession();
+  nextBeatAt=performance.now()+beatMs;
+  rafId=requestAnimationFrame(tick);
+  if (timer) clearInterval(timer);
+  timer=setInterval(drawScope, 100);
+}
+
+function stopAll(){
+  running=false; mode=null;
+  if (rafId) cancelAnimationFrame(rafId);
+  if (timer) { clearInterval(timer); timer=null; }
+  stopSynth();
+  if (micStream){ micStream.getTracks().forEach(function(t){t.stop();}); micStream=null; }
+  el("mic").textContent="Listen to the room "; el("mic").classList.remove("recording");
+  el("mic").innerHTML='Listen to the room <span class="k">mic</span>';
+  el("play").innerHTML='Play a test tune <span class="k">synth</span>';
+  el("play").classList.remove("recording");
+  document.body.classList.remove("recording");
+  if (nBeats > 0 && el("ranked").innerHTML)
+    el("resultHead").textContent = "Last take \u2014 " + nBeats + " beats";
+  drawScope();
+}
+
+el("reset").addEventListener("click", restart);
+
+/* theme toggle */
+el("theme").addEventListener("click", function(){
+  var r=document.documentElement;
+  var dark = r.getAttribute("data-theme")==="dark" ||
+    (!r.getAttribute("data-theme") && matchMedia("(prefers-color-scheme:dark)").matches);
+  r.setAttribute("data-theme", dark?"light":"dark");
+  drawScope();
+});
+
+/* ============================ boot ============================ */
+(function boot(){
+  /* Tune picker: the recognisable ones first, then everything. */
+  var favourites=["Autumn Leaves","Blue Monk","Oleo","So What","All The Things You Are",
+    "Take The A Train","Alone Together","Cherokee","Body And Soul","Stella By Starlight",
+    "Blue Bossa","Solar","Footprints","Giant Steps","Summertime","Night And Day"];
+  var opts=[], seen={};
+  favourites.forEach(function(t){
+    var i=SONGS.findIndex(function(s){return s.title===t;});
+    if (i>=0){ opts.push('<option value="'+i+'">'+esc(t)+'</option>'); seen[i]=1; }
+  });
+  SONGS.forEach(function(s,i){
+    if (!seen[i]) opts.push('<option value="'+i+'">'+esc(s.title)+'</option>');
+  });
+  el("tune").innerHTML=opts.join("");
+
+  el("pcs").innerHTML = PC.map(function(p){return "<span>"+p+"</span>";}).join("");
+
+  /* Open in a working state: run the real matcher on a chroma sequence built
+     from one tune's own templates, transposed and started mid-form, plus noise.
+     Same code path the microphone uses - just a cleaner signal. */
+  var demoIdx = SONGS.findIndex(function(s){return s.title==="Autumn Leaves";});
+  if (demoIdx<0) demoIdx=0;
+  var song=SONGS[demoIdx], tr=3, rot=0, reps=4;
+  nBeats=Math.min(song.L*reps, MAXB);
+  var seed=12345;
+  function rnd(){ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; }
+  for (var i=0;i<nBeats;i++){
+    /* transpose the chord itself, then take its plain template */
+    var code=song.codes[(i+rot)%song.L];
+    var up=((((code/NQ)|0)+tr)%12)*NQ + (code%NQ), o=i*24;
+    for (var d=0;d<24;d++) beats[o+d]=TPL[up*24+d]+ (rnd()-0.5)*0.28;
+    normHalves(beats,o);
+  }
+  el("rBeats").textContent=String(nBeats);
+  var res=match(smoothed(), nBeats, 12);
+  if (res && res.list.length) render(res, true);
+  el("vNote").innerHTML = el("vNote").innerHTML +
+    ' <em>Sample: this ran the real matcher on a simulated ' + esc(song.title) +
+    ' in a key ' + tr + ' semitones up. Press Listen or Play a test tune for live audio.</em>';
+  drawScope();
+})();
+
+})();
+</script>

@@ -68,9 +68,33 @@ Two chroma bands are kept **separate**, not summed into one 12-vector:
   carries root motion;
 - **treble** (C3–B5) — comping and horns, carrying thirds, sevenths and tensions.
 
-The split matters because jazz pianists play *rootless* voicings. The root is
-usually absent from the comping and present only in the bass. Ordinary chroma
-folds those together and discards the distinction.
+The rationale was that jazz pianists play *rootless* voicings, so the root is
+absent from the comping and present only in the bass, and ordinary chroma folds
+that distinction away.
+
+**Measured, that rationale is largely wrong, and the correction matters.**
+Zeroing one band at match time (`python -m namestd.eval ablate`):
+
+| chroma used | family top-1 |
+|---|---|
+| both bands | 95% (19/20) |
+| treble only | 90% (18/20) |
+| bass only | 60% (12/20) |
+
+The treble band does nearly all the work. Dropping the bass costs one tune out
+of twenty, which at this sample size is not a result at all; dropping the treble
+costs seven, which is. The likely reason is that a third and a seventh already
+pin the chord quality, and the root follows from the sequence - while a walking
+bassline spends most of its beats *away* from the root, so bass chroma is noisy
+exactly where it was supposed to be authoritative.
+
+Two consequences. The split is kept, because it costs almost nothing and the
+balance may well differ on real recordings, where the bass is often louder
+relative to sparse comping than this synthesiser makes it - but it is now a
+hypothesis awaiting real audio, not a justified design decision. And it explains
+the otherwise surprising phone-mic result below: losing everything under 150 Hz
+is nearly free, which is good news for the thing this is eventually meant to run
+on.
 
 **No downbeat tracking.** The obvious next step after beat tracking is finding
 bar lines, and it is the most fragile stage in a typical pipeline. It is skipped
@@ -261,6 +285,37 @@ whether a form actually aligns, which is evidence the beat tracker never had.
 This also sets the UX: unlike Shazam's few seconds, this needs 30–120 seconds,
 and should present a live-updating ranked list rather than a single answer.
 
+### Robustness to what real performances do
+
+Synthetic audio has metronomic time, the chart played literally and no room.
+Each way a real performance differs, applied one at a time
+(`python -m namestd.eval stress`, 20 tunes, 512 beats):
+
+| condition | family top-1 | what it simulates |
+|---|---|---|
+| clean | 95% | ideal synthetic baseline |
+| reverb | 95% | small room, harmony smeared across bar lines |
+| phone mic | 95% | nothing below 150 Hz (verified: 74% of bass-band energy removed) |
+| crowd | 95% | room tone and audience rumble |
+| rubato | 90% | loose time, beat grid drifting against the form |
+| reharm | 90% | tritone subs, ii before V, relative minor for tonic |
+| outside | 85% | a quarter of the bars on unrelated harmony |
+| no piano | 95% | piano-less trio, harmony from the bass alone |
+| **club** | **70%** | all of the above at once |
+
+At n=20 one tune is five points, so the rows between 90% and 95% are
+indistinguishable from each other and only the bottom two carry signal. What the
+table does show is that **compounding costs far more than any single factor**: no
+condition alone costs more than ten points, all of them together cost twenty-five.
+A real club recording is the last row, not the first.
+
+`outside` being the worst single factor is the expected result for a reassuring
+reason - when the band stops playing the changes, there are no changes to match.
+That is the method reaching its limit, not failing.
+
+None of this substitutes for real recordings. The phone-mic condition is a guess
+at what a phone does to a signal, not a measurement of one.
+
 ### Melody rerank
 
 Within the 28-tune blues family — all on identical changes, where the harmonic
@@ -304,7 +359,7 @@ lead sheets.
 |---|---|---|
 | Solo piano, rubato ballads | No steady pulse, so the beat grid collapses and everything downstream with it | Fall back to non-beat-synchronous chroma DTW |
 | Beat-tracker octave error | 240bpm read as 120 halves the beats per chorus and nothing aligns | Already handled: several tempo hypotheses are scored and the matcher picks, since only it can check whether a form actually aligns |
-| Piano-less trio | No comping; harmony implied by bass alone | The separate bass chroma band |
+| Piano-less trio | No comping; harmony implied by bass alone | Measured at 95%, but see the ablation above - the bass band is weaker than intended, so this needs real audio to trust |
 | Free or outside solos | Harmony departs from the chart | Per-chorus confidence weighting |
 | Heavy reharmonisation (Coltrane changes) | Chart no longer describes what is played | Substitution costs that treat a tritone sub, or ii-V for V, as cheap |
 | Contrafacts | Harmony genuinely cannot separate them | Return the family; rerank on melody |

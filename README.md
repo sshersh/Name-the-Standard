@@ -40,6 +40,14 @@ Twenty-eight tunes in the corpus are written on the same twelve bars, so
 harmony's honest answer there is *"a blues in F"*. Reranking those on the melody
 of the head: 10/12 top-1.
 
+Under conditions a real performance adds, applied one at a time
+(`python -m namestd.eval stress`): reverb, a phone mic's band limit, crowd noise
+and a piano-less trio each cost nothing measurable; loose time and
+reharmonisation cost about one tune in twenty; a quarter of the bars played
+outside costs two. **All of them together cost five** - compounding hurts far
+more than any single factor, so a real club recording is the last row, not the
+first. Everything here is still synthetic; see docs/ALGORITHM.md.
+
 ## Quick start
 
     pip install -e ".[audio,dev]"

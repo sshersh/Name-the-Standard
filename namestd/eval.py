@@ -236,10 +236,56 @@ def evaluate_stress(matcher: Matcher, songs, n_songs: int = 20,
     return "\n".join(lines)
 
 
+def evaluate_ablation(matcher: Matcher, songs, n_songs: int = 20,
+                      beats: int = 512, seed: int = 3) -> str:
+    """How much does each chroma band actually contribute?
+
+    The bass/treble split is the front end's main design claim, so it should be
+    checked rather than assumed: zero one half of every chroma vector at match
+    time and see what the loss costs.
+    """
+    eligible = [i for i, s_ in enumerate(songs) if 32 <= s_.n_beats <= 256]
+    picked = np.random.default_rng(seed).choice(
+        eligible, size=min(n_songs, len(eligible)), replace=False)
+
+    modes = {"both bands": None, "bass only": "treble", "treble only": "bass"}
+    hits = {k: 0 for k in modes}
+    for index in picked:
+        song = songs[int(index)]
+        rng = np.random.default_rng(int(index) * 7919 + seed)
+        style = random_style(rng, n_choruses=int(np.ceil(beats / song.n_beats)) + 1,
+                             start_offset_bars=int(rng.integers(0, song.n_bars)))
+        audio, _ = render(song, style)
+        hypotheses = analyse_hypotheses(audio)
+
+        for name, drop in modes.items():
+            windows = []
+            for h in hypotheses:
+                if h.chroma.shape[0] < 24:
+                    continue
+                chroma = h.chroma[:beats].copy()
+                if drop == "bass":
+                    chroma[:, 0:12] = 0.0
+                elif drop == "treble":
+                    chroma[:, 12:24] = 0.0
+                windows.append(Features(h.beat_times[:beats], chroma, h.tempo))
+            if not windows:
+                continue
+            report = matcher.match_best_of(windows, top_k=5)
+            if report.matches and report.best.family_index == matcher.family_of[int(index)]:
+                hits[name] += 1
+
+    lines = [f"{len(picked)} tunes, {beats} beats, one chroma band zeroed at match time", ""]
+    for name, count in hits.items():
+        lines.append(f"  {name:<12} family top1 {100.0 * count / len(picked):>3.0f}%  "
+                     f"({count}/{len(picked)})")
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=["synthetic", "stress"], nargs="?",
-                        default="synthetic")
+    parser.add_argument("mode", choices=["synthetic", "stress", "ablate"],
+                        nargs="?", default="synthetic")
     parser.add_argument("--songs", type=int, default=60)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--oracle-beats", action="store_true",
@@ -251,6 +297,10 @@ def main(argv: list[str] | None = None) -> int:
     matcher = build_matcher(songs)
     print(f"families: {len(matcher.families)}")
     print()
+
+    if args.mode == "ablate":
+        print(evaluate_ablation(matcher, songs, n_songs=args.songs, seed=args.seed))
+        return 0
 
     if args.mode == "stress":
         print(evaluate_stress(matcher, songs, n_songs=args.songs, seed=args.seed))

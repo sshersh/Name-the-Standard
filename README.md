@@ -50,6 +50,22 @@ of the head: 10/12 top-1.
     python -m namestd.eval synthetic --songs 60
     pytest
 
+## Trying it on a real performance
+
+Everything measured below is synthetic. To point it at an actual recording you
+have locally:
+
+    namestd identify take.wav --progress
+
+`--progress` prints the answer firming up as more of the take is heard, which is
+the behaviour worth watching. Any format librosa can open works; `ffmpeg` covers
+the rest.
+
+Two things decide whether it has a chance. Give it **four choruses** - one is
+near-useless by design, since evidence accumulates across choruses. And the tune
+has to be **in the corpus**: 1382 standards, so a modal original or a Coltrane
+line written over reharmonised changes will not be there to find.
+
 ## Browser demo
 
 A single self-contained page that runs the harmonic matcher client-side over all

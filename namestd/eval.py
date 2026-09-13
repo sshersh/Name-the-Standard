@@ -21,7 +21,10 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from .corpus import load_corpus
+from dataclasses import replace as _replace
+
+from .corpus import Song, load_corpus
+from .degrade import band_limit, crowd, play_outside, reharmonise, reverb
 from .frontend import Features, analyse, analyse_hypotheses
 from .match import Matcher, build_matcher
 from .synth import PerformanceStyle, random_style, render
@@ -137,9 +140,106 @@ def evaluate_synthetic(matcher: Matcher, songs, n_songs: int = 100,
     return results
 
 
+# Each condition isolates one way a real performance differs from a clean
+# synthetic one, so a drop can be attributed instead of guessed at.
+CONDITIONS: dict[str, str] = {
+    "clean":     "ideal synthetic baseline",
+    "reverb":    "small room, harmony smeared across bar lines",
+    "phone":     "phone mic: nothing below 150 Hz, so the bass band is gutted",
+    "crowd":     "room tone and audience rumble",
+    "rubato":    "loose time, the beat grid drifting against the form",
+    "reharm":    "tritone subs, ii inserted before V, relative minor for tonic",
+    "outside":   "a quarter of the bars played on unrelated harmony",
+    "no_piano":  "piano-less trio: harmony implied by the bass alone",
+    "club":      "everything at once",
+}
+
+
+def _apply_condition(song: Song, condition: str, style: PerformanceStyle,
+                     seed: int) -> tuple[Song, PerformanceStyle]:
+    """Symbol-level damage: what the band plays, before any audio exists."""
+    chords = song.chords
+    if condition in ("reharm", "club"):
+        chords = reharmonise(chords, 0.35, seed)
+    if condition in ("outside", "club"):
+        chords = play_outside(chords, 0.25, seed + 1)
+    if condition in ("rubato", "club"):
+        style.rubato = 0.055
+    if condition in ("no_piano", "club"):
+        style.comp_level = 0.0
+    return (_replace(song, chords=chords) if chords is not song.chords else song), style
+
+
+def _degrade_audio(audio: np.ndarray, condition: str, seed: int) -> np.ndarray:
+    """Room-level damage: what happens between the band and the microphone."""
+    sr = 22050
+    if condition in ("reverb", "club"):
+        audio = reverb(audio, sr, seconds=1.1, wet=0.35, seed=seed)
+    if condition in ("phone", "club"):
+        audio = band_limit(audio, sr, low_hz=150.0, high_hz=5000.0)
+    if condition in ("crowd", "club"):
+        audio = crowd(audio, sr, level=0.06, seed=seed)
+    return audio
+
+
+def evaluate_stress(matcher: Matcher, songs, n_songs: int = 20,
+                    beats: int = 512, seed: int = 0,
+                    conditions: list[str] | None = None) -> str:
+    """Family top-1 under each condition, everything else held equal."""
+    names = conditions or list(CONDITIONS)
+    eligible = [i for i, s in enumerate(songs) if 32 <= s.n_beats <= 256]
+    picked = np.random.default_rng(seed).choice(
+        eligible, size=min(n_songs, len(eligible)), replace=False)
+
+    lines = [f"{len(picked)} tunes per condition, {beats} beats heard "
+             f"(~{beats // 4} bars), full pipeline including beat tracking",
+             "",
+             f"{'condition':<10} {'family top1':>12} {'tune top1':>10} {'key ok':>8}   what it simulates",
+             "-" * 96]
+
+    for condition in names:
+        hits = tune_hits = key_hits = total = 0
+        for index in picked:
+            song = songs[int(index)]
+            rng = np.random.default_rng(int(index) * 7919 + seed)
+            style = random_style(
+                rng,
+                n_choruses=int(np.ceil(beats / song.n_beats)) + 1,
+                start_offset_bars=int(rng.integers(0, song.n_bars)),
+            )
+            played, style = _apply_condition(song, condition, style, int(index))
+            audio, _ = render(played, style)
+            audio = _degrade_audio(audio, condition, int(index))
+
+            windows = []
+            for hypothesis in analyse_hypotheses(audio):
+                if hypothesis.chroma.shape[0] >= 24:
+                    windows.append(Features(
+                        beat_times=hypothesis.beat_times[:beats],
+                        chroma=hypothesis.chroma[:beats], tempo=hypothesis.tempo))
+            total += 1
+            if not windows:
+                continue
+            report = matcher.match_best_of(windows, top_k=5)
+            if not report.matches:
+                continue
+            best = report.best
+            hits += best.family_index == matcher.family_of[int(index)]
+            tune_hits += best.song_index == int(index)
+            key_hits += best.transposition == style.transpose % 12
+
+        lines.append(
+            f"{condition:<10} {100.0 * hits / total:>11.0f}% {100.0 * tune_hits / total:>9.0f}%"
+            f" {100.0 * key_hits / total:>7.0f}%   {CONDITIONS.get(condition, '')}"
+        )
+        print("  done:", condition, flush=True)
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=["synthetic"], nargs="?", default="synthetic")
+    parser.add_argument("mode", choices=["synthetic", "stress"], nargs="?",
+                        default="synthetic")
     parser.add_argument("--songs", type=int, default=60)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--oracle-beats", action="store_true",
@@ -151,6 +251,10 @@ def main(argv: list[str] | None = None) -> int:
     matcher = build_matcher(songs)
     print(f"families: {len(matcher.families)}")
     print()
+
+    if args.mode == "stress":
+        print(evaluate_stress(matcher, songs, n_songs=args.songs, seed=args.seed))
+        return 0
 
     results = evaluate_synthetic(matcher, songs, n_songs=args.songs,
                                  seed=args.seed, oracle_beats=args.oracle_beats)
